@@ -1,0 +1,18 @@
+[Unit]
+Description=Lenovo LOQ RGB keyboard lighting
+Documentation=https://github.com/MrDavidAlv/loq-kbd
+# Ordering AFTER the sleep targets is what makes this fire on RESUME rather
+# than on the way down.
+After=suspend.target hibernate.target hybrid-sleep.target suspend-then-hibernate.target multi-user.target
+
+[Service]
+# Type=simple covers both kinds of mode: a still one exits at once, an animated
+# one keeps running and repaints every frame.
+Type=simple
+# __INSTALL_DIR__ is replaced by install.sh with wherever you cloned this.
+ExecStart=__INSTALL_DIR__/loq-kbd apply
+Restart=on-failure
+RestartSec=2
+
+[Install]
+WantedBy=multi-user.target suspend.target hibernate.target hybrid-sleep.target suspend-then-hibernate.target

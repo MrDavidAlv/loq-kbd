@@ -1,0 +1,6 @@
+# Lighting applied at boot and after resume.
+# Copy this to color.conf, or just run:  loq-kbd save <colour>
+#
+# One line, holding the same arguments you would pass to loq-kbd:
+#   blue          azul 60          ff8800          mode3 40
+blue

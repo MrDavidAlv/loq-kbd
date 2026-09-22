@@ -1,0 +1,138 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 920 920" width="920" height="920" role="img" aria-labelledby="ttl dsc">
+<title id="ttl">How loq-kbd drives the Lenovo LOQ keyboard</title>
+<desc id="dsc">loq-kbd locates the LampArray interface of the ITE 8258 controller, reads the zone count with report 1, clears autonomous mode with report 6 so the firmware stops its colour cycling, then paints with report 5 for one colour across every zone or report 4 for per-zone colours.</desc>
+<style>
+  :root{
+    --bg:#fbfaf8; --box:#ffffff; --line:#c9c6c0; --ink:#1d2026; --mut:#6b7280;
+    --hi-s:#c2410c; --hi-f:#fff4ed; --ok-s:#1d4ed8; --ok-f:#eff4ff; --code:#374151;
+  }
+  @media (prefers-color-scheme:dark){ :root{
+    --bg:#14161a; --box:#1c2026; --line:#39404b; --ink:#e7e9ed; --mut:#98a1ae;
+    --hi-s:#fb923c; --hi-f:#2b1d12; --ok-s:#60a5fa; --ok-f:#14203a; --code:#b9c2cf;
+  }}
+  .bg{fill:var(--bg)}
+  text{font-family:ui-sans-serif,-apple-system,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;fill:var(--ink)}
+  .h{font-size:20px;font-weight:650}
+  .lbl{font-size:14.5px;font-weight:620}
+  .sm{font-size:12.5px;fill:var(--mut)}
+  .mo{font-family:ui-monospace,"SF Mono",Menlo,Consolas,monospace;font-size:12.5px;fill:var(--code)}
+  .mos{font-family:ui-monospace,"SF Mono",Menlo,Consolas,monospace;font-size:11.5px;fill:var(--code)}
+  .mob{font-family:ui-monospace,"SF Mono",Menlo,Consolas,monospace;font-size:14px;font-weight:600}
+  .ar{stroke:var(--line);stroke-width:1.8;fill:none;marker-end:url(#a)}
+  .pl{stroke:var(--line);stroke-width:1.8;fill:none}
+  .arh{stroke:var(--hi-s);stroke-width:2;fill:none;marker-end:url(#ah);stroke-dasharray:5 4}
+  .tag{font-size:11px;fill:var(--mut);font-family:ui-monospace,Menlo,Consolas,monospace}
+</style>
+<defs>
+  <marker id="a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+    <path d="M0 0.5 L9.5 5 L0 9.5 z" fill="var(--line)"/>
+  </marker>
+  <marker id="ah" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+    <path d="M0 0.5 L9.5 5 L0 9.5 z" fill="var(--hi-s)"/>
+  </marker>
+</defs>
+
+<rect class="bg" x="0" y="0" width="920" height="920"/>
+<text class="h" x="40" y="42">How <tspan class="mob" style="fill:var(--ink)">loq-kbd</tspan> drives the keyboard</text>
+<text class="sm" x="40" y="63">Lenovo LOQ · ITE 8258 (048d:c693) · HID LampArray — the same reports on Linux and Windows</text>
+
+<!-- 1. the command -->
+<rect x="70" y="86" width="440" height="52" rx="9" fill="var(--box)" stroke="var(--line)" stroke-width="1.5"/>
+<text class="mob" x="94" y="118">$ loq-kbd blue</text>
+<text class="tag" x="250" y="118">or: rojo · ff8800 · mode3 · ola 60</text>
+<path class="ar" d="M290 138 L290 166"/>
+
+<!-- 2. locate -->
+<rect x="70" y="166" width="440" height="106" rx="9" fill="var(--box)" stroke="var(--line)" stroke-width="1.5"/>
+<text class="lbl" x="94" y="191">1 · Locate the lighting interface</text>
+<text class="mos" x="94" y="213">Linux    scan /sys/class/hidraw/*/device/</text>
+<text class="mos" x="94" y="231">Windows  SetupAPI over GUID_DEVINTERFACE_HID</text>
+<text class="mos" x="108" y="252">· VID:PID == 048d:c693</text>
+<text class="mos" x="108" y="266">· usage page 0x59  (Lighting)</text>
+<path class="ar" d="M290 272 L290 300"/>
+<text class="tag" x="300" y="292">interface 0 is the ordinary keyboard</text>
+
+<!-- 3. the node -->
+<rect x="70" y="300" width="440" height="70" rx="9" fill="var(--box)" stroke="var(--line)" stroke-width="1.5"/>
+<text class="mo" x="94" y="326">/dev/hidraw4</text>
+<text class="sm" x="215" y="326">or</text>
+<text class="mo" x="243" y="326">\\?\HID#VID_048D&amp;PID_C693…</text>
+<text class="sm" x="94" y="354">both interfaces share the VID:PID, so the descriptor decides</text>
+<path class="ar" d="M290 370 L290 398"/>
+
+<!-- 4. report 1 -->
+<rect x="70" y="398" width="440" height="70" rx="9" fill="var(--box)" stroke="var(--line)" stroke-width="1.5"/>
+<text class="lbl" x="94" y="423">2 · Report 1 · LampArrayAttributes</text>
+<text class="tag" x="450" y="423">GET</text>
+<text class="mo" x="94" y="448">LampCount = 24 zones, in one row</text>
+<path class="ar" d="M290 468 L290 496"/>
+
+<!-- 5. report 6, where the cycling dies -->
+<rect x="70" y="496" width="440" height="90" rx="9" fill="var(--hi-f)" stroke="var(--hi-s)" stroke-width="2"/>
+<text class="lbl" x="94" y="521" style="fill:var(--hi-s)">3 · Report 6 · LampArrayControl</text>
+<text class="tag" x="450" y="521">SET</text>
+<text class="mob" x="94" y="547" style="fill:var(--hi-s)">AutonomousMode = 0</text>
+<text class="sm" x="262" y="547">the colour cycling stops here</text>
+<text class="sm" x="94" y="571">the firmware lets go of the lamps</text>
+
+<!-- fork down to the two painting reports -->
+<path class="pl" d="M290 586 L290 602 M175 602 L405 602"/>
+<path class="ar" d="M175 602 L175 622"/>
+<path class="ar" d="M405 602 L405 622"/>
+
+<!-- 6a. report 5 -->
+<rect x="70" y="622" width="210" height="130" rx="9" fill="var(--box)" stroke="var(--line)" stroke-width="1.5"/>
+<text class="lbl" x="88" y="646">4a · Report 5</text>
+<text class="mos" x="88" y="665">LampRangeUpdate</text>
+<text class="sm" x="88" y="688">One colour on every</text>
+<text class="sm" x="88" y="705">zone, in a single call.</text>
+<text class="mos" x="88" y="728">start=0  end=23</text>
+<text class="sm" x="88" y="745">modes 1 and 2</text>
+
+<!-- 6b. report 4 -->
+<rect x="300" y="622" width="210" height="130" rx="9" fill="var(--box)" stroke="var(--line)" stroke-width="1.5"/>
+<text class="lbl" x="318" y="646">4b · Report 4</text>
+<text class="mos" x="318" y="665">LampMultiUpdate</text>
+<text class="sm" x="318" y="688">A colour per zone,</text>
+<text class="sm" x="318" y="705">8 zones per call.</text>
+<text class="mos" x="318" y="728">3 calls for 24</text>
+<text class="sm" x="318" y="745">modes 3, 4 and 5</text>
+
+<path class="ar" d="M175 752 L175 782"/>
+<path class="ar" d="M405 752 L405 782"/>
+
+<!-- 7. result -->
+<rect x="70" y="782" width="440" height="66" rx="9" fill="var(--ok-f)" stroke="var(--ok-s)" stroke-width="2"/>
+<text class="lbl" x="94" y="808" style="fill:var(--ok-s)">The ITE 8258 paints the zones and holds them</text>
+<text class="sm" x="94" y="831">until the next command, a reboot, or a resume</text>
+
+<!-- side: auto -->
+<rect x="570" y="496" width="320" height="90" rx="9" fill="var(--box)" stroke="var(--line)" stroke-width="1.5"/>
+<text class="mob" x="592" y="523">$ loq-kbd auto</text>
+<text class="mo" x="592" y="546">AutonomousMode = 1</text>
+<text class="sm" x="592" y="570">the way back: the firmware resumes its effect</text>
+<path class="arh" d="M570 542 L518 542"/>
+
+<!-- side: order matters -->
+<rect x="570" y="622" width="320" height="130" rx="9" fill="var(--box)" stroke="var(--line)" stroke-width="1.5"/>
+<text class="lbl" x="592" y="646">Order matters</text>
+<text class="sm" x="592" y="670">Painting before clearing</text>
+<text class="mos" x="592" y="688">AutonomousMode</text>
+<text class="sm" x="592" y="706">does not work: the firmware</text>
+<text class="sm" x="592" y="723">still owns the lamps and</text>
+<text class="sm" x="592" y="740">repaints within milliseconds.</text>
+
+<!-- side: the one platform difference -->
+<rect x="570" y="782" width="320" height="120" rx="9" fill="var(--box)" stroke="var(--line)" stroke-width="1.5"/>
+<text class="lbl" x="592" y="806">The one real difference</text>
+<text class="sm" x="592" y="829">Windows wants every feature</text>
+<text class="sm" x="592" y="846">report padded to</text>
+<text class="mos" x="592" y="864">FeatureReportByteLength</text>
+<text class="sm" x="592" y="882">and rejects a short buffer.</text>
+
+<!-- side: brightness note, up top -->
+<rect x="570" y="398" width="320" height="70" rx="9" fill="var(--box)" stroke="var(--line)" stroke-width="1.5"/>
+<text class="lbl" x="592" y="422">Brightness</text>
+<text class="sm" x="592" y="444">IntensityLevelCount = 1, so the</text>
+<text class="sm" x="592" y="461">Intensity field is inert: scale R,G,B.</text>
+</svg>
