@@ -1,0 +1,6 @@
+# Your saved lighting choice: local state, not source.
+# color.conf.example is the template; install.sh copies it here.
+color.conf
+
+__pycache__/
+*.py[cod]
