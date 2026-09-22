@@ -1,0 +1,18 @@
+# Lenovo LOQ 15AHP10 — controlador RGB ITE 8258 (HID LampArray).
+#
+# Por defecto /dev/hidrawN es root:root modo 600, asi que fijar el color exige
+# sudo. TAG+="uaccess" le pide a systemd-logind que ponga un ACL para el usuario
+# de la sesion activa: tu, en la consola de tu propia maquina.
+#
+# Se usa uaccess y no MODE="0666" a proposito. 0666 dejaria el dispositivo HID
+# abierto a cualquier proceso del sistema, incluidas cuentas de servicio; uaccess
+# lo limita a quien esta realmente sentado frente al equipo.
+#
+# ATTRS{} recorre los dispositivos padre, por eso el VID:PID del USB se puede
+# emparejar aqui aunque el KERNEL== sea el nodo hidraw.
+#
+# EL NUMERO DEL ARCHIVO IMPORTA: tiene que ser MENOR que 73. Quien concede el ACL
+# es /usr/lib/udev/rules.d/73-seat-late.rules, que comprueba TAG=="uaccess"; las
+# reglas corren en orden lexico, asi que un 99- pondria el tag cuando la 73 ya
+# paso y el ACL no se concede nunca. El tag queda puesto y todo "parece" bien.
+KERNEL=="hidraw*", SUBSYSTEM=="hidraw", ATTRS{idVendor}=="048d", ATTRS{idProduct}=="c693", TAG+="uaccess"
